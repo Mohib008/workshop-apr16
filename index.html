@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%">
+
+<head>
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Artificial intelligence with Mihok from TorontoJS, building on basic knowledge we will discover and build Neural Networks from scratch to get a better understanding of how they work." />
+    <title>JS Workshop</title>
+    <script type="text/javascript" src="helpers/manifest.lib.js"></script>
+    <script type="text/javascript" src="helpers/math.lib.js"></script>
+    <script type="text/javascript" src="helpers/data.lib.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript" src="helpers/renderers.lib.js"></script>
+  <script type="text/javascript">
+
+// Welcome to TorontoJS Workshop :) 
+const H1 = 0;
+const H2 = 1;
+const O1 = 2;
+
+const W1 = 0;
+const W2 = 1;
+const W3 = 2;
+const W4 = 3;
+const W5 = 4;
+const W6 = 5;
+
+const I1 = 0;
+const I2 = 1;
+class Network {
+  biases = [];
+  weights = [];
+  hidden = [];
+  output;
+
+  constructor (weights = [], biases = [], activatorFn) {
+    this.biases = biases,
+    this.weights = weights,
+    this.hidden = [
+      new Neuron( [this.weights[W1], this.weights[W2], this.biases[H1], activatorFn]),
+      new Neuron( [this.weights[W3], this.weights[W4], this.biases[H2], activatorFn]),
+    ];
+    this.output = new Neuron ([weights[5], weights[6]], this.biases[O1], activatorFn);
+  }
+
+
+train (data = [], answers = [], iterations = 100, rate = 0.1) {
+  for (let i = 0; i < iterations; i += 1) {
+    for (let d in data) {
+      let h1Sum = this.hidden[H1].sum(data[d]);
+      let h1 = this.hidden[H1].activatorFn(h1Sum);
+
+      let h2Sum = this.hidden[H2].sum(data[d]);
+      let h2 = this.hidden[H2].activatorFn(h2Sum);
+
+      let o1Sum = this.output.sum([h1, h2]);
+      let o1 = this.output.activatorFn(o1Sum);
+
+      let pred =o1;
+      let pLpO1 = -2 * (answers[d] - pred);
+
+      let po1pW6 = h1 * Math.derivSignoid(o1Sum);
+      let po1pW5 = h2 * Math.derivSigoid(o1Sum);
+      let po1pWB3 = Math. derivSignoid(o1Sum);
+      let pO1pH1 = this.weights[W5] * Math.derivSignoid(o1Sum);
+      let pO1pH2 = this.weights[W6] * Math.derivSignoid(o1Sum);
+      let pH1pW1 = data[d][I1] * Math.derivSignoid(h1Sum);
+      let pH1pW2 = data[d][I2] * Math.derivSignoid(h1Sum);
+
+      let pH1pB1 = Math.derivSignoid(h1Sum);
+      let pH2pW3 = data[d][I1] * Math.derivSignoid(h2Sum);
+      let pH2pW4 = data[d][I2] * Math.derivSignoid(h2Sum);
+
+      let pH2pB2 = Math.derivSignoid(h2Sum);
+
+      this.weights[W1] -= rate * pLpO1 * pO1H1 * pH1pW1;
+      this.weights[W2] -= rate * pLpO1 * pO1H1 * pH1pW2;
+
+      this.weights[W3] -= rate * pLpO1 * pO1H2 * pH1pW3;
+      this.weights[W4] -= rate * pLpO1 * pO1H2 * pH1pW4;
+
+      this.weights[W5] -= rate * pLpO1 * pH1pW5;
+      this.weights[W6] -= rate * pLpO1 * pH1pW6;
+
+      this.biases[H1] -= rate * pLpO1 * pO1pH1 * pH1pB1;
+      this.biases[H2] -= rate * pLpO1 * pO1pH2 * pH1pB2;
+      this.biases[O1] -= rate * pLpO1 * pO1pB3
+
+      this.out.weights = [
+        this.weights[5],
+        this.weights[6],
+      ];
+
+      this.output.bias = this.biases[O1];
+
+      this.hidden[H1].weights = [
+        this.weights[W1],
+        this.weights[W2],
+      ];
+
+      this.hidden[H2].bias = this.biases[H1];
+
+      this.hidden[H2].weights = [
+        this.weights[W3],
+        this.weights[W4],
+      ];
+
+      this.hidden[H2].bias = this.biases[H2];
+
+      /*this.hidden[H2].weights = [
+        this.weights[W4],
+        this.weights[W5],
+      ];*/
+
+
+
+    }
+  }
+}
+
+  query (inputs =[]){
+    let params = [];
+    for (let h in this.hidden) {
+      params.push(this.hidden[h].fire(inputs));
+
+    }
+  return this.output.fire(params)
+ }
+}
+
+class Neuron {
+  bias; 
+  weights;
+  activatorFn;
+  constructor ( weights = [], bias = 0, activateFn) {
+    this.bias = bias;
+    this.weights = weights;
+    this.activatorFn =activateFn;
+  }
+
+  sum (inputs = []) {
+    let buffer = [];
+    let output = 0;
+
+    for (let b in buffer){
+      output += buffer[b];
+    }
+    output += this.bias;
+    return output;
+  }
+
+  fire (inputs =[]){
+    let output = 0;
+    output = this.sum(inputs);
+    let result = this.activatorFn(output);
+    return result;
+  }
+}
+const w = [0, 1, 0, 1, 0, 1];
+
+const b = [0, 0, 0];
+const nn = new Network(w, b, Math.sigmoid);
+
+const x = [2, 3];
+console.log('Run Neuron against input', nn.query(x));
+
+
+  </script>
+</body>
+
+</html>
